@@ -60,6 +60,8 @@ export interface TrafficChartProps {
   /** Rango del eje Y por defecto si el rango activo no define el suyo. */
   yRange?: [number, number];
   height?: number;
+  /** Muestra el botón de descarga (por defecto true). */
+  showDownload?: boolean;
   /**
    * Handler de descarga. Si se omite, se exporta a CSV la vista actual.
    * Recibe el rango activo para que el consumidor decida qué hacer.
@@ -68,7 +70,7 @@ export interface TrafficChartProps {
 }
 
 /** Exporta el dataset visible a un archivo CSV (comportamiento por defecto). */
-function downloadRangeAsCsv(title: string, range: TrafficRange) {
+export function downloadRangeAsCsv(range: TrafficRange, title = 'grafica') {
   const header = ['x', ...range.series.map((s) => s.label)].join(',');
   const rows = range.xLabels.map((x, i) =>
     [x, ...range.series.map((s) => s.data[i] ?? '')].join(','),
@@ -95,6 +97,7 @@ export function TrafficChart({
   onRangeChange,
   yRange = [0, 250],
   height = 300,
+  showDownload = true,
   onDownload,
 }: TrafficChartProps) {
   const theme = useTheme();
@@ -116,7 +119,7 @@ export function TrafficChart({
   const handleDownload = () => {
     if (!activeRange) return;
     if (onDownload) onDownload(activeRange);
-    else downloadRangeAsCsv(title, activeRange);
+    else downloadRangeAsCsv(activeRange, title);
   };
 
   // Colores por defecto tomados del tema BG3.
@@ -156,7 +159,8 @@ export function TrafficChart({
     return acc;
   }, {});
 
-  const activeSubtitle = activeRange?.subtitle ?? subtitle;
+  // El subtitle del prop (editable en Controls) manda; el del rango es fallback.
+  const activeSubtitle = subtitle ?? activeRange?.subtitle;
   const activeYRange = activeRange?.yRange ?? yRange;
 
   return (
@@ -196,9 +200,11 @@ export function TrafficChart({
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
-          <IconButton aria-label="Descargar" onClick={handleDownload}>
-            <FileDownloadOutlinedIcon />
-          </IconButton>
+          {showDownload && (
+            <IconButton aria-label="Descargar" onClick={handleDownload}>
+              <FileDownloadOutlinedIcon />
+            </IconButton>
+          )}
         </Stack>
       </Stack>
 

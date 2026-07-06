@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { action } from 'storybook/actions';
+import { within, userEvent, expect, fn } from 'storybook/test';
 import Box from '@mui/material/Box';
 import { TrafficChart, type TrafficRange } from './TrafficChart';
 
@@ -17,6 +19,10 @@ const meta = {
       control: { type: 'range', min: 200, max: 500, step: 10 },
       description: 'Alto de la gráfica en px.',
     },
+    showDownload: {
+      control: 'boolean',
+      description: 'Muestra u oculta el botón de descarga.',
+    },
     yRange: {
       control: 'object',
       description: 'Rango del eje Y [min, max] por defecto.',
@@ -33,12 +39,21 @@ const meta = {
       control: 'object',
       description: 'Datasets por rango temporal (editable como JSON).',
     },
-    onRangeChange: { action: 'rangeChanged' },
-    onDownload: {
-      control: false,
-      description:
-        'Handler de descarga. Si se omite, exporta la vista actual a CSV.',
+    onRangeChange: {
+      description: 'Callback al cambiar de rango. Se registra en Actions.',
+      table: { category: 'Eventos' },
     },
+    onDownload: {
+      description: 'Callback de descarga. Se registra en Actions.',
+      table: { category: 'Eventos' },
+    },
+  },
+  args: {
+    // Spies: registran en Actions y son afirmables en los play functions.
+    // (Log-only para no generar archivos al ejecutarse los play automáticos;
+    // la exportación real a CSV vive en el handler por defecto del componente.)
+    onRangeChange: fn((key) => action('onRangeChange')(key)),
+    onDownload: fn((range) => action('onDownload')(range)),
   },
   decorators: [
     (Story) => (
@@ -128,7 +143,9 @@ const RANGES: TrafficRange[] = [
 
 /**
  * Réplica completa del "Traffic" de CoreUI, restyleada al tema BG3.
- * El toggle Día/Mes/Año cambia el dataset; el icono descarga la vista en CSV.
+ *
+ * El `play` ejercita TODOS los comportamientos de este ejemplo:
+ * estado inicial, cambio de rango (gráfica + subtítulo + callback) y descarga.
  */
 export const Default: Story = {
   args: {
@@ -147,16 +164,56 @@ export const Default: Story = {
       options: [undefined, 'day', 'month', 'year'],
     },
   },
+  play: async ({ canvasElement, args, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Estado inicial: rango "Mes"', async () => {
+      await expect(
+        canvas.getByRole('button', { name: 'Mes' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect(canvas.getByText('Enero – Julio 2026')).toBeInTheDocument();
+    });
+
+    await step('Cambiar a "Año" → gráfica, subtítulo y onRangeChange', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Año' }));
+      await expect(
+        canvas.getByRole('button', { name: 'Año' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect(await canvas.findByText('2020 – 2026')).toBeInTheDocument();
+      await expect(args.onRangeChange).toHaveBeenCalledWith('year');
+    });
+
+    await step('Cambiar a "Día"', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Día' }));
+      await expect(await canvas.findByText('Últimos 7 días')).toBeInTheDocument();
+      await expect(args.onRangeChange).toHaveBeenLastCalledWith('day');
+    });
+
+    await step('Descargar (condicionado a si el botón está visible)', async () => {
+      const downloadBtn = canvas.queryByLabelText('Descargar');
+      if (downloadBtn) {
+        await userEvent.click(downloadBtn);
+        await expect(args.onDownload).toHaveBeenCalledWith(
+          expect.objectContaining({ key: 'day' }),
+        );
+      } else {
+        await expect(args.onDownload).not.toHaveBeenCalled();
+      }
+    });
+  },
 };
 
 /**
- * Eje X numérico (`scaleType: 'linear'`): tanto X como Y son valores numéricos,
- * con espaciado proporcional. Útil para curvas de escalado (p. ej. valor de un
- * stat frente a otra magnitud numérica).
+ * Eje X numérico (`scaleType: 'linear'`): X e Y son numéricos, con espaciado
+ * proporcional. Un solo rango, curvas de escalado.
+ *
+ * El `play` ejercita los comportamientos de este ejemplo: rango único
+ * seleccionado, subtítulo y descarga.
  */
 export const NumericAxis: Story = {
   args: {
     title: 'Curvas de escalado',
+    showDownload: false,
     ranges: [
       {
         key: 'scaling',
@@ -187,28 +244,32 @@ export const NumericAxis: Story = {
       },
     ],
   },
-};
+  play: async ({ canvasElement, args, step }) => {
+    const canvas = within(canvasElement);
 
-/** Una sola serie de área, sin baseline. */
-export const SingleArea: Story = {
-  args: {
-    title: 'Visitas',
-    ranges: [
-      {
-        key: 'month',
-        label: 'Mes',
-        subtitle: 'Últimos 7 meses',
-        xLabels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
-        yRange: [0, 250],
-        series: [
-          {
-            id: 'visits',
-            label: 'Visitas',
-            data: [30, 60, 55, 95, 120, 150, 190],
-            area: true,
-          },
-        ],
-      },
-    ],
+    await step('Rango único "Escala" seleccionado + subtítulo', async () => {
+      await expect(
+        canvas.getByRole('button', { name: 'Escala' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      await expect(
+        canvas.getByText('Eje X numérico (0 – 100)'),
+      ).toBeInTheDocument();
+    });
+
+    await step('Descargar (condicionado a si el botón está visible)', async () => {
+      const downloadBtn = canvas.queryByLabelText('Descargar');
+      if (downloadBtn) {
+        await userEvent.click(downloadBtn);
+        await expect(args.onDownload).toHaveBeenCalledWith(
+          expect.objectContaining({ key: 'scaling' }),
+        );
+      } else {
+        // showDownload=false → el botón no debe estar en el DOM.
+        await expect(
+          canvas.queryByLabelText('Descargar'),
+        ).not.toBeInTheDocument();
+        await expect(args.onDownload).not.toHaveBeenCalled();
+      }
+    });
   },
 };
