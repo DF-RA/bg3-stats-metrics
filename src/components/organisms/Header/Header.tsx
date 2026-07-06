@@ -28,7 +28,7 @@ export interface HeaderProps {
   /** Handler al pulsar la marca (p. ej. ir a inicio). */
   onBrandClick?: () => void;
   /**
-   * Componente de enlace para la navegación (p. ej. `Link` de next/link) y así
+   * Componente de enlace para la navegación (p. ej. el `Link` del router) y así
    * conseguir transiciones client-side. Si se omite, se usa un `<a>` normal.
    */
   linkComponent?: React.ElementType;

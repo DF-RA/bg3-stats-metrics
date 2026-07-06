@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { action } from 'storybook/actions';
 import { within, userEvent, expect, fn } from 'storybook/test';
 import { Footer, type FooterLink } from './Footer';

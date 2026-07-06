@@ -3,6 +3,13 @@ import Typography from '@mui/material/Typography';
 import { TrafficChart } from '@/components/organisms/TrafficChart';
 import { abilityModifier } from '@/domain/abilities';
 
+export function meta() {
+  return [
+    { title: 'Escalados · BG3 Stats Metrics' },
+    { name: 'description', content: 'Cómo escalan las estadísticas de BG3.' },
+  ];
+}
+
 // Puntuaciones de característica 8–20 y su modificador (calculado en build).
 const scores = Array.from({ length: 13 }, (_, i) => 8 + i);
 const modifiers = scores.map(abilityModifier);

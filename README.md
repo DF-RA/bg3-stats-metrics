@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BG3 Stats Metrics
 
-## Getting Started
+Panel de estadísticas y escalados de **Baldur's Gate 3**. SPA estática, sin
+backend: los datos del juego van empaquetados y todo el cálculo ocurre en el
+cliente. Desarrollo dirigido por componentes con Storybook.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **React Router v7** (framework mode, **SPA** con `ssr: false`) + **React 19** + **TypeScript**
+- **Material UI v9** + Emotion, con un tema inspirado en BG3 (oro/carmesí/pergamino)
+- **Storybook 10** (`@storybook/react-vite`) conectado al tema, con addons de
+  a11y, docs y tests (Vitest)
+- Fuentes self-hosted vía `@fontsource` (Cinzel + EB Garamond)
+
+## Estructura
+
+```
+app/                   # capa de framework (React Router)
+├─ root.tsx            # document + ThemeProvider + CssBaseline + fuentes
+├─ routes.ts           # configuración de rutas
+├─ routes/             # rutas de la SPA
+└─ app.css             # estilos globales mínimos
+
+src/                   # design system (agnóstico del framework)
+├─ components/
+│  ├─ atoms/ · molecules/ · organisms/ · templates/
+├─ theme/              # palette.ts, theme.ts (bg3Theme), Foundations story
+└─ domain/             # lógica pura de stats (modificadores, competencia, DC…)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El código de `src/` no depende de React Router: los componentes se construyen
+en Storybook y se ensamblan en las rutas de `app/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev         # SPA en desarrollo (http://localhost:5173)
+pnpm build       # export estático a build/client/ (desplegable sin Node)
+pnpm sb          # Storybook (http://localhost:6006)
+pnpm build-sb    # build estático de Storybook
+pnpm typecheck   # react-router typegen + tsc
+pnpm lint        # ESLint
+```
 
-## Learn More
+## Metodología
 
-To learn more about Next.js, take a look at the following resources:
+Se construyen los componentes de forma aislada en Storybook (atoms → molecules
+→ organisms → templates) y luego se ensamblan en las rutas de `app/`, como un
+rompecabezas. La lógica de dominio (`src/domain`) es pura y testeable, sin UI.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Despliegue
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`pnpm build` genera una SPA estática en `build/client/` (HTML/CSS/JS), lista
+para cualquier hosting estático (GitHub Pages, Netlify, Cloudflare Pages…) sin
+servidor Node.

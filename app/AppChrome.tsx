@@ -1,11 +1,19 @@
-'use client';
-
 import * as React from 'react';
-import NextLink from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation, type LinkProps } from 'react-router';
 import { AppLayout } from '@/components/templates/AppLayout';
 import { Header } from '@/components/organisms/Header';
 import { Footer } from '@/components/organisms/Footer';
+
+/**
+ * Adaptador: MUI pasa `href` a su LinkComponent, pero el Link de React Router
+ * usa `to`. Este wrapper traduce uno en otro, manteniendo el Header agnóstico.
+ */
+const RouterLink = React.forwardRef<
+  HTMLAnchorElement,
+  Omit<LinkProps, 'to'> & { href?: string }
+>(function RouterLink({ href = '', ...props }, ref) {
+  return <Link ref={ref} to={href} {...props} />;
+});
 
 /** Secciones de navegación de la SPA. */
 const NAV = [
@@ -14,12 +22,16 @@ const NAV = [
 ];
 
 /**
- * Shell persistente de la app: Header + Main + Footer. Vive como client
- * component para poder usar `usePathname` (ruta activa) y el `Link` de Next
- * (navegación client-side → SPA).
+ * Shell persistente de la app: Header + Main + Footer. Usa `useLocation` para
+ * marcar la ruta activa y el `Link` de React Router (vía RouterLink) para
+ * navegación client-side.
  */
-export default function AppChrome({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+export default function AppChrome({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { pathname } = useLocation();
 
   const navItems = NAV.map((item) => ({
     ...item,
@@ -32,7 +44,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
         <Header
           title="BG3 Stats Metrics"
           navItems={navItems}
-          linkComponent={NextLink}
+          linkComponent={RouterLink}
         />
       }
       footer={
