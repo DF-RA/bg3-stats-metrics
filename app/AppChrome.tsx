@@ -19,6 +19,7 @@ const RouterLink = React.forwardRef<
 const NAV = [
   { label: 'Inicio', href: '/' },
   { label: 'Escalados', href: '/estadisticas' },
+  { label: 'Laboratorio', href: '/laboratorio' },
 ];
 
 /**
