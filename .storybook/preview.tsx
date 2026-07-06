@@ -30,7 +30,22 @@ const preview: Preview = {
     (Story) => (
       <ThemeProvider theme={bg3Theme}>
         <CssBaseline />
-        <Story />
+        {/*
+         * En Storybook los enlaces (<a href>) no deben navegar: romperían el
+         * iframe del canvas. Prevenimos la navegación por defecto; los handlers
+         * de React (onNavItemClick, onLinkClick…) siguen ejecutándose, así que
+         * los play functions y sus aserciones no se ven afectados.
+         * `display: contents` evita que el wrapper altere el layout.
+         */}
+        <div
+          style={{ display: 'contents' }}
+          onClickCapture={(event) => {
+            const anchor = (event.target as HTMLElement).closest?.('a');
+            if (anchor?.getAttribute('href')) event.preventDefault();
+          }}
+        >
+          <Story />
+        </div>
       </ThemeProvider>
     ),
   ],
