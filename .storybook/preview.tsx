@@ -31,15 +31,18 @@ const preview: Preview = {
       <ThemeProvider theme={bg3Theme}>
         <CssBaseline />
         {/*
-         * En Storybook los enlaces (<a href>) no deben navegar: romperían el
-         * iframe del canvas. Prevenimos la navegación por defecto; los handlers
-         * de React (onNavItemClick, onLinkClick…) siguen ejecutándose, así que
-         * los play functions y sus aserciones no se ven afectados.
+         * En Storybook los enlaces (<a href>) no deben navegar de verdad:
+         * romperían el iframe del canvas. En fase de burbuja prevenimos la
+         * navegación SOLO si nadie la gestionó antes: un router client-side
+         * (p. ej. el <Link> de React Router) llama a preventDefault al navegar,
+         * así que lo detectamos vía `defaultPrevented` y lo dejamos pasar.
+         * Los handlers de React (onNavItemClick…) siguen ejecutándose.
          * `display: contents` evita que el wrapper altere el layout.
          */}
         <div
           style={{ display: 'contents' }}
-          onClickCapture={(event) => {
+          onClick={(event) => {
+            if (event.defaultPrevented) return;
             const anchor = (event.target as HTMLElement).closest?.('a');
             if (anchor?.getAttribute('href')) event.preventDefault();
           }}
