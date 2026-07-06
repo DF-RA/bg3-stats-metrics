@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cinzel, EB_Garamond } from 'next/font/google';
 import ThemeRegistry from '@/theme/ThemeRegistry';
+import AppChrome from './AppChrome';
 import './globals.css';
 
 // Fuente de títulos: Cinzel evoca la epigrafía romana/fantástica de la UI de BG3.
@@ -30,7 +31,9 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${display.variable} ${body.variable}`}>
       <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <ThemeRegistry>
+          <AppChrome>{children}</AppChrome>
+        </ThemeRegistry>
       </body>
     </html>
   );
