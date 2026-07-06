@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Preview } from '@storybook/nextjs-vite';
+import type { Preview } from '@storybook/react-vite';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { bg3Theme } from '../src/theme/theme';

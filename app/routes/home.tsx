@@ -4,6 +4,16 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Chip from '@mui/material/Chip';
 
+export function meta() {
+  return [
+    { title: 'BG3 Stats Metrics' },
+    {
+      name: 'description',
+      content: 'Panel de estadísticas y escalados de Baldur’s Gate 3.',
+    },
+  ];
+}
+
 export default function Home() {
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
@@ -19,14 +29,14 @@ export default function Home() {
 
         <Paper sx={{ p: 3 }}>
           <Typography variant="h5" gutterBottom>
-            Base lista
+            SPA con React Router v7
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 2 }}>
-            Next.js + React + Material UI + Storybook con tema BG3. Construimos
-            los componentes en Storybook y luego los ensamblamos aquí.
+            React Router v7 (SPA) + React + Material UI + Storybook con tema BG3.
+            Construimos los componentes en Storybook y luego los ensamblamos aquí.
           </Typography>
           <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-            <Chip label="Next.js 16" color="primary" />
+            <Chip label="React Router v7" color="primary" />
             <Chip label="React 19" color="primary" variant="outlined" />
             <Chip label="Material UI" color="secondary" />
             <Chip label="Storybook" color="secondary" variant="outlined" />

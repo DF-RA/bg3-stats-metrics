@@ -1,0 +1,23 @@
+/*
+ * Estilos globales mínimos. El reset, fondo y tipografía base los aporta
+ * <CssBaseline /> a partir del tema BG3; aquí definimos las variables de fuente
+ * (self-hosted vía @fontsource) y ajustes que MUI no cubre.
+ */
+
+:root {
+  --font-display: 'Cinzel', serif;
+  --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
