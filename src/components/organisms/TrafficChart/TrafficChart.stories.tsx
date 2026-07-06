@@ -5,7 +5,41 @@ import { TrafficChart, type TrafficRange } from './TrafficChart';
 const meta = {
   title: 'Organisms/TrafficChart',
   component: TrafficChart,
+  tags: ['autodocs'],
   parameters: { layout: 'padded' },
+  argTypes: {
+    title: { control: 'text', description: 'Título de la card.' },
+    subtitle: {
+      control: 'text',
+      description: 'Subtítulo (fallback si el rango activo no define el suyo).',
+    },
+    height: {
+      control: { type: 'range', min: 200, max: 500, step: 10 },
+      description: 'Alto de la gráfica en px.',
+    },
+    yRange: {
+      control: 'object',
+      description: 'Rango del eje Y [min, max] por defecto.',
+    },
+    defaultRangeKey: {
+      control: 'text',
+      description: 'Rango activo inicial (modo no controlado).',
+    },
+    activeRangeKey: {
+      control: 'text',
+      description: 'Rango activo (modo controlado).',
+    },
+    ranges: {
+      control: 'object',
+      description: 'Datasets por rango temporal (editable como JSON).',
+    },
+    onRangeChange: { action: 'rangeChanged' },
+    onDownload: {
+      control: false,
+      description:
+        'Handler de descarga. Si se omite, exporta la vista actual a CSV.',
+    },
+  },
   decorators: [
     (Story) => (
       <Box sx={{ maxWidth: 760 }}>
@@ -101,6 +135,17 @@ export const Default: Story = {
     title: 'Tráfico',
     ranges: RANGES,
     defaultRangeKey: 'month',
+    height: 300,
+  },
+  argTypes: {
+    defaultRangeKey: {
+      control: 'select',
+      options: ['day', 'month', 'year'],
+    },
+    activeRangeKey: {
+      control: 'select',
+      options: [undefined, 'day', 'month', 'year'],
+    },
   },
 };
 
