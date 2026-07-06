@@ -31,6 +31,15 @@ src/                   # design system (agnóstico del framework)
 El código de `src/` no depende de React Router: los componentes se construyen
 en Storybook y se ensamblan en las rutas de `app/`.
 
+> **"Remix" = React Router v7.** El modelo de este proyecto (rutas basadas en
+> archivos, `root.tsx` con `Meta`/`Links`/`Outlet`, `loader`s, SSR/SPA) es el de
+> Remix, pero el equipo de Remix fusionó Remix v2 en **React Router v7** a
+> finales de 2024 ("Remix *is* React Router now"). Por eso usamos los paquetes
+> `react-router` / `@react-router/dev` en vez de `@remix-run/*` (Remix v2, en
+> mantenimiento). Remix v3 es un proyecto aparte y **no** es lo que usamos. La
+> doc de referencia es la de React Router v7; los tutoriales de `v2.remix.run`
+> aplican en concepto, pero cambian imports y algunos APIs.
+
 ## Comandos
 
 ```bash
